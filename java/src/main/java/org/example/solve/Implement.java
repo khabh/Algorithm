@@ -1,15 +1,189 @@
 package org.example.solve;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class Implement {
 
     private static final Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
-        new Implement().problem5();
+        new Implement().problem7();
+    }
+
+    class Position {
+        private final int x;
+        private final int y;
+
+        public Position(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getDistanceFrom(Position position) {
+            return Math.abs(x - position.x) + Math.abs(y - position.y);
+        }
+    }
+
+    class House extends Position {
+        private static final int MAX_DISTANCE = 200;
+
+        public House(int x, int y) {
+            super(x, y);
+        }
+
+        public int getMinDistance(Position[] positions) {
+            int minDistance = MAX_DISTANCE;
+            for (Position position : positions) {
+                minDistance = Math.min(minDistance, getDistanceFrom(position));
+            }
+
+            return minDistance;
+        }
+    }
+
+    Position[] chickens;
+    List<House> houses = new ArrayList<>();
+
+    private int closeChicken(int count, int index, boolean[] visited, Position[] selected) {
+        if (count == selected.length) {
+            return houses.stream()
+                    .map(house -> house.getMinDistance(selected))
+                    .flatMapToInt(IntStream::of)
+                    .sum();
+        }
+
+        int result = Integer.MAX_VALUE;
+
+        for (int i = index; i < visited.length; i++) {
+            if (!visited[index]) {
+                visited[index] = true;
+                selected[count] = chickens[i];
+                result = Math.min(result, closeChicken(count + 1, index + 1, visited, selected));
+                visited[index] = false;
+            }
+            index++;
+        }
+        selected[count] = null;
+
+        return result;
+    }
+
+    private void problem7() {
+        int n = scanner.nextInt();
+        int m = scanner.nextInt();
+
+        List<Position> positions = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int type = scanner.nextInt();
+                if (type == 0)
+                    continue;
+                if (type == 1)
+                    houses.add(new House(i, j));
+                else
+                    positions.add(new Position(i, j));
+            }
+        }
+
+        chickens = positions.toArray(new Position[0]);
+
+        System.out.println(closeChicken(0, 0, new boolean[positions.size()],new Position[m]));
+    }
+
+
+    // 기둥과 보 설치
+    class Problem6 {
+
+        private static final int INSTALL = 1;
+
+        class Building {
+            private static final int PILLAR = 0;
+            private static final int FLOOR = 1;
+
+            private final int size;
+            private int componentCount = 0;
+            private boolean[][][] struct = new boolean[101][101][2];
+
+            Building(int buildingSize) {
+                size = buildingSize;
+            }
+
+            public void addComponent(int x, int y, int type) {
+                struct[x][y][type] = true;
+                componentCount++;
+            }
+
+            public void removeComponent(int x, int y, int type) {
+                struct[x][y][type] = false;
+                componentCount--;
+            }
+
+            public boolean isValid() {
+                for (int i = 0; i <= size; i++) {
+                    for (int j = 0; j <= size; j++) {
+                        if ((struct[i][j][PILLAR] && !isValidPillar(i, j)) || (struct[i][j][FLOOR] && !isValidFloor(i, j))) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            public int[][] getComponents() {
+                int[][] components = new int[componentCount][3];
+                int index = 0;
+                for (int i = 0; i <= size; i++) {
+                    for (int j = 0; j <= size; j++) {
+                        if (struct[i][j][PILLAR]) {
+                            components[index] = new int[]{i, j, PILLAR};
+                            index++;
+                        }
+                        if (struct[i][j][FLOOR]) {
+                            components[index] = new int[]{i, j, FLOOR};
+                            index++;
+                        }
+                    }
+                }
+                return components;
+            }
+
+            private boolean isValidPillar(int x, int y) {
+                if (y == 0)
+                    return true;
+                return struct[x][y - 1][PILLAR] || struct[x][y][FLOOR]
+                        || (x > 0 && struct[x - 1][y][FLOOR]);
+            }
+
+            private boolean isValidFloor(int x, int y) {
+                if (struct[x][y - 1][PILLAR] || struct[x + 1][y - 1][PILLAR])
+                    return true;
+                return x < size && x > 0 && struct[x - 1][y][FLOOR] && struct[x + 1][y][FLOOR];
+            }
+        }
+
+        public int[][] solution(int size, int[][] buildFrame) {
+            Building building = new Building(size);
+            for (int[] buildComponent : buildFrame) {
+                int x = buildComponent[0];
+                int y = buildComponent[1];
+                int type = buildComponent[2];
+                int operate = buildComponent[3];
+
+                if (operate == INSTALL) {
+                    building.addComponent(x, y, type);
+                    if (!building.isValid())
+                        building.removeComponent(x, y, type);
+                    continue;
+                }
+                building.removeComponent(x, y, type);
+                if (!building.isValid())
+                    building.addComponent(x, y, type);
+            }
+
+            return building.getComponents();
+        }
     }
 
     class SnakePiece {
