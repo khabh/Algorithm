@@ -10,6 +10,64 @@ public class Implement {
         new Implement().problem7();
     }
 
+    // 외벽 점검
+    class Problem8 {
+        private int[] friends;
+        private int[] weaks;
+        private boolean[] visited = new boolean[8];
+
+        public int calcFriendsCount(int[] dist) {
+            int result = dist.length + 1;
+            int n = weaks.length / 2;
+            int maxIndex = n * 2;
+            for (int i = 0; i < n; i++) {
+                int start = i;
+                int end = i;
+                for (int j = 0; j < dist.length; j++) {
+                    while ((end + 1) < maxIndex && (weaks[end + 1] - weaks[start]) <= dist[j])
+                        end++;
+                    if (end - i + 1 >= n) {
+                        result = Math.min(result, j + 1);
+                        break;
+                    }
+                    start = end + 1;
+                    end = start;
+                }
+            }
+
+            return result;
+        }
+
+        public int dfs(int[] selected, int index) {
+            if (index == friends.length) {
+                return calcFriendsCount(selected);
+            }
+            int result = selected.length + 1;
+            for (int i = 0; i < friends.length; i++) {
+                if (!visited[i]) {
+                    selected[index] = friends[i];
+                    visited[i] = true;
+                    result = Math.min(result, dfs(selected, index + 1));
+                    visited[i] = false;
+                }
+            }
+
+            return result;
+        }
+
+        public int solution(int n, int[] weak, int[] dist) {
+            friends = dist;
+            weaks = new int[weak.length * 2];
+            for (int i = 0; i < weak.length; i++) {
+                weaks[i] = weak[i];
+                weaks[i + weak.length] = n + weak[i];
+            }
+            int result = dfs(new int[dist.length], 0);
+            if (result > dist.length)
+                return -1;
+            return result;
+        }
+    }
     class Position {
         private final int x;
         private final int y;
