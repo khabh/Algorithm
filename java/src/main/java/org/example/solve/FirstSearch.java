@@ -1,12 +1,146 @@
 package org.example.solve;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+
+class Robot {
+    int firstX;
+    int firstY;
+    int secondX;
+    int secondY;
+
+    static int[] dx = new int[] {0, 0, 1, -1};
+    static int[] dy = new int[] {1, -1, 0, 0};
+    static Set<Robot> visited = new HashSet<>();
+    static Robot invalidRobot = new Robot(-1, -1, -1, -1);
+
+    static {
+        visited.add(new Robot(1, 1, 1, 2));
+    }
+
+    public Robot(int x1, int y1, int x2, int y2) {
+        this.firstX = x1;
+        this.firstY = y1;
+        this.secondX = x2;
+        this.secondY = y2;
+    }
+
+    public boolean isNewPosition() {
+        if (visited.contains(this))
+            return false;
+        visited.add(this);
+        return true;
+    }
+
+    public boolean arrived(int n) {
+        return secondX == n && secondY == n;
+    }
+
+    public Robot moveParallelTo(int index, int[][] board) {
+        int x1 = firstX + dx[index];
+        int y1 = firstY + dy[index];
+        if (board[x1][y1] == 1)
+            return invalidRobot;
+        int x2 = secondX + dx[index];
+        int y2 = secondY + dy[index];
+        if (board[x2][y2] == 1)
+            return invalidRobot;
+        return new Robot(x1, y1, x2, y2);
+    }
+
+    public Stream<Robot> getNextMoves(int[][] board) {
+        List<Robot> robots = IntStream.range(0, 4)
+                .mapToObj(index -> moveParallelTo(index, board))
+                .filter(robot -> robot != invalidRobot)
+                .collect(Collectors.toList());
+
+        if (firstY == secondY) {
+            if (board[firstX][firstY - 1] == 0 && board[secondX][secondY - 1] == 0) {
+                robots.add(new Robot(firstX, firstY - 1, firstX, firstY));
+                robots.add(new Robot(secondX, secondY - 1, secondX, secondY));
+            }
+            if (board[firstX][firstY + 1] == 0 && board[secondX][secondY + 1] == 0) {
+                robots.add(new Robot(firstX, firstY, firstX, firstY + 1));
+                robots.add(new Robot(secondX, secondY, secondX, secondY + 1));
+            }
+        } else {
+            if (board[firstX - 1][firstY] == 0 && board[secondX - 1][secondY] == 0) {
+                robots.add(new Robot(firstX, firstY, firstX - 1, firstY));
+                robots.add(new Robot(secondX - 1, secondY, secondX, secondY));
+            }
+            if (board[firstX + 1][firstY] == 0 && board[secondX + 1][secondY] == 0) {
+                robots.add(new Robot(firstX, firstY, firstX + 1, firstY));
+                robots.add(new Robot(secondX, secondY, secondX + 1, secondY));
+            }
+        }
+
+        return robots.stream().filter(Robot::isNewPosition);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Robot robot = (Robot) o;
+        return firstX == robot.firstX && firstY == robot.firstY && secondX == robot.secondX && secondY == robot.secondY;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstX, firstY, secondX, secondY);
+    }
+}
 
 public class FirstSearch {
     public static void main(String[] args) {
         new FirstSearch().problem6();
     }
+
+    // 블록 이동하기
+    class Solution {
+
+        private void initializeBoard(int[][] board, int[][] givenBoard) {
+            int n = givenBoard.length;
+            for (int i = 0; i < n; i++) {
+                System.arraycopy(givenBoard[i], 0, board[i + 1], 1, n);
+            }
+            for (int i = 0; i < board.length; i++) {
+                board[i][0] = board[i][n + 1] = 1;
+            }
+            Arrays.fill(board[0], 1);
+            Arrays.fill(board[n + 1], 1);
+        }
+
+        public int solution(int[][] givenBoard) {
+            int boardSize = givenBoard.length + 2;
+            int n = givenBoard.length;
+            int[][] board = new int[boardSize][boardSize];
+            initializeBoard(board, givenBoard);
+
+            Queue<Robot> queue = new LinkedList<>();
+            queue.add(new Robot(1, 1, 1, 2));
+
+            int move = 0;
+            while (!queue.isEmpty()) {
+                Queue<Robot> nextRobots = new LinkedList<>();
+                while (!queue.isEmpty()) {
+                    Robot robot = queue.poll();
+                    if (robot.arrived(n))
+                        return move;
+                    robot.getNextMoves(board)
+                            .forEach(nextRobots::add);
+                }
+                queue = nextRobots;
+                move++;
+            }
+
+            return move;
+        }
+    }
+
 
     public class Nation {
         private final int x;
