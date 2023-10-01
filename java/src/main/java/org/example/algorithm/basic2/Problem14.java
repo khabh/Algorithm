@@ -5,23 +5,35 @@ import java.util.Scanner;
 import java.util.StringJoiner;
 
 public class Problem14 {
-    private static String dfs(String[] alphabets, int prevSelected, int currentIndex, String[] selected) {
+    static StringJoiner resultMaker = new StringJoiner("\n");
+
+    private static boolean hasOneVowelAndTwoConsonant(String str) {
+        int vowelCount = 0;
+        int maxVowelCount = str.length() - 2;
+        for (char c : str.toCharArray()) {
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                vowelCount++;
+                if (vowelCount > maxVowelCount) {
+                    return false;
+                }
+            }
+        }
+        return vowelCount >= 1;
+    }
+
+    private static void dfs(String[] alphabets, int prevSelected, int currentIndex, String[] selected) {
         if (currentIndex == selected.length) {
             String result = String.join("", selected);
-            if (result.matches("^(?=.*[aeiou].*)(?=.*[bcdfghjklmnpqrstvwxyz].*)(?=.*.[bcdfghjklmnpqrstvwxyz]).*$"))
-                return result;
-            return null;
+            if (hasOneVowelAndTwoConsonant(result))
+                resultMaker.add(result);
+            return;
         }
 
-        StringJoiner result = new StringJoiner("\n");
         int maxIndex = alphabets.length + 1 - selected.length + currentIndex;
         for (int i = prevSelected + 1; i < maxIndex; i++) {
             selected[currentIndex] = alphabets[i];
-            String temp = dfs(alphabets, i, currentIndex + 1, selected);
-            if (temp != null && !temp.isBlank())
-                result.add(temp);
+            dfs(alphabets, i, currentIndex + 1, selected);
         }
-        return result.toString();
     }
 
     public static void main(String[] args) {
@@ -33,8 +45,7 @@ public class Problem14 {
             alphabets[i] = scanner.next();
         }
         Arrays.sort(alphabets);
-        String result = dfs(alphabets, -1, 0, new String[l]);
-        if (result != null && !result.isBlank())
-            System.out.println(result);
+        dfs(alphabets, -1, 0, new String[l]);
+        System.out.println(resultMaker);
     }
 }
