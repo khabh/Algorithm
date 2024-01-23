@@ -332,3 +332,151 @@ class Solution {
         return f[x][y] || p[x][y - 1] || (x > 0 && f[x - 1][y]);
     }
 }
+
+// 외벽 점검
+import java.util.*;
+
+class Solution {
+    
+    private int[] board;
+    private int[] current;
+    private int result;
+    
+    private void calcResult(int index) {
+        int total = board.length / 2;
+        for (int start = 0; start < total; start++) {
+            int pos = start;
+            for (int i = 0; i < index; i++) {
+                int nextDist = board[pos] + current[i];
+                while (board[pos] <= nextDist && pos + 1 < board.length) {
+                    pos++;
+                }
+                if (pos - start >= total) {
+                    result = Math.min(result, i + 1);
+                    break;
+                }
+            } 
+        }
+    }
+    
+    private void dfs(int index, int[] dist, boolean[] visited) {
+        if (index > result) {
+            return;
+        }
+        if (index == dist.length || index < result) {
+            calcResult(index);
+        }
+        if (index == dist.length) {
+            return;
+        }
+        for (int i = 0; i < dist.length; i++) {
+            if (visited[i])
+                continue;
+            visited[i] = true;
+            current[index] = dist[i];
+            dfs(index + 1, dist, visited);
+            visited[i] = false;
+            current[index] = 0;
+        }
+    }
+    
+    public int solution(int n, int[] weak, int[] dist) {
+        int w = weak.length;
+        current = new int[dist.length];
+        board = new int[w * 2];
+        for (int i = 0; i < w; i++) {
+            board[i] = weak[i];
+            board[i + w] = weak[i] + n; 
+        }
+        result = dist.length + 1;
+        dfs(0, dist, new boolean[dist.length]);
+        if (result > dist.length) {
+            return -1;
+        }
+        return result;
+    }
+}
+
+// 블록 이동하기
+import java.util.*;
+
+class Solution {
+    
+    private final int[] dx = {0, 1, 0, -1};
+    private final int[] dy = {1, 0, -1, 0};
+    private int n;
+    private int[][] board;
+    private int[][][] counts;
+    
+    class Pos {
+        int x;
+        int y;
+        int dir;
+        
+        public Pos(int x, int y, int dir) {
+            this.x = x;
+            this.y = y;
+            this.dir = dir;
+        }
+    }
+    
+    public int solution(int[][] board) {
+        n = board.length;
+        this.board = board;
+        counts = new int[n][n][2];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                Arrays.fill(counts[i][j], -1);
+            }
+        }
+        counts[0][0][0] = 0;
+        Queue<Pos> q = new LinkedList<>();
+        q.add(new Pos(0, 0, 0));
+        while (!q.isEmpty()) {
+            Pos p = q.poll();
+            int x1 = p.x;
+            int y1 = p.y;
+            int dir = p.dir;
+            int x2 = x1 + dx[dir];
+            int y2 = y1 + dy[dir];
+            if ((x1 == n -1 && y1 == n - 1) || (x2 == n - 1 && y2 == n - 1))
+                return counts[x1][y1][dir];
+            int count = counts[x1][y1][dir];
+            for (int i = 0; i < 4; i++) {
+                int nx1 = x1 + dx[i];
+                int ny1 = y1 + dy[i];
+                int nx2 = x2 + dx[i];
+                int ny2 = y2 + dy[i];
+                if (!valid(nx1, ny1, nx2, ny2))
+                    continue;
+                if (i < 2) {
+                    addPos(x1, y1, i, count + 1, q);
+                    addPos(x2, y2, i, count + 1, q);
+                }
+                else {
+                    int opDir = i - 2;
+                    addPos(nx1, ny1, opDir, count + 1, q);
+                    addPos(nx2, ny2, opDir, count + 1, q);
+                }
+                addPos(nx1, ny1, dir, count + 1, q);
+            }
+        }
+        int answer = 0;
+        return answer;
+    }    
+    
+    private boolean valid(int x1, int y1, int x2, int y2) {
+        return valid(x1, y1) && valid(x2, y2);
+    }
+    
+    private boolean valid(int x, int y) {
+        return x >= 0 && y >= 0 && x < n && y < n && board[x][y] == 0;
+    }
+    
+    private void addPos(int x, int y, int dir, int count, Queue<Pos> q) {
+        if (counts[x][y][dir] == -1) {
+            counts[x][y][dir] = count;
+            q.add(new Pos(x, y, dir));
+        }
+    }
+}
