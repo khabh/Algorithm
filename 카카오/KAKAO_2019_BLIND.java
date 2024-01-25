@@ -250,3 +250,181 @@ class Solution {
         return remain.get((int)k).getNumber();
     }
 }
+
+// 매칭 점수
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+class Solution {
+    public int solution(String word, String[] pages) {
+        Pattern pattern = Pattern.compile("<meta property=\"og:url\" content=\"(.*?)\"\\/>");
+        Map<String, Integer> sites = new HashMap<>();
+        List<Integer> scores = new ArrayList<>();
+        List<List<String>> links = new ArrayList<>();
+        List<List<Integer>> linked = new ArrayList<>();
+        for (int i = 0; i < pages.length; i++) {
+            Matcher matcher = pattern.matcher(pages[i]);
+            if (matcher.find()) {
+                sites.put(matcher.group(1), i);
+                scores.add(getDefault(pages[i], word));
+                links.add(getLinks(pages[i]));
+                linked.add(new ArrayList<>());
+            }
+        }
+        for (int i = 0; i < pages.length; i++) {
+            for (String link : links.get(i)) {
+                if (sites.containsKey(link)) {
+                    int index = sites.get(link);
+                    linked.get(index).add(i);
+                }
+            }
+        }
+        double answer = 0;
+        int index = 0;
+        
+        for (int i = 0; i < pages.length; i++) {
+            double score = (double)scores.get(i);
+            for (int otherIndex : linked.get(i)) {
+                 double otherScore = (double)scores.get(otherIndex) / links.get(otherIndex).size();
+                score += otherScore;
+            }
+            if (answer < score) {
+                answer = score;
+                System.out.println(answer);
+                index = i;
+            }
+        }
+        
+        return index;
+    }
+    
+    private List<String> getLinks(String page) {
+        List<String> links = new ArrayList<>();
+        Pattern p = Pattern.compile("<a href=\"(.*?)\">");
+        Matcher matcher = p.matcher(page);
+        while (matcher.find()) {
+            links.add(matcher.group(1));
+        }   
+        return links;
+    }
+    
+    private int getDefault(String page, String word) {
+        String[] splitPage = page.split("[^a-zA-Z]");
+        int count = 0;
+        for (String s : splitPage) {
+            if (word.equalsIgnoreCase(s)) {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+
+// 블록 게임
+import java.util.*;
+
+class Solution {
+    
+    private static int n;
+    private final int[] dx = {1, -1, 0, 0};
+    private final int[] dy = {0, 0, 1, -1};
+    
+    static class Node {
+        int x;
+        int y;
+        
+        public Node(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        
+        public static boolean canRemove(int[][] board, List<Node> nodes) {
+            int maxX = 0;
+            int maxY = 0;
+            int minX = n - 1;
+            int minY = n - 1;
+            
+            for (Node node : nodes) {
+                maxX = Math.max(node.x, maxX);
+                minY = Math.min(node.y, minY);
+                maxY = Math.max(node.y, maxY);
+                minX = Math.min(node.x, minX);
+            }
+            
+            for (int i = minX; i <= maxX; i++) {
+                for (int j = minY; j <= maxY; j++) {
+                    if (board[i][j] == -1)
+                        continue;
+                    if (board[i][j] > 0 || !canAdd(i, j, board)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+    
+    private static boolean canAdd(int x, int y, int[][] board) {
+        for (int i = x; i >= 0; i--) {
+            if (board[i][y] != 0)
+                return false;
+        }
+        return true;
+    }
+    
+    private boolean bfs(int a, int b, int[][] board) {
+        List<Node> nodes = new ArrayList<>();
+        int num = board[a][b];
+        board[a][b] = -1;
+        nodes.add(new Node(a, b));
+        int index = 0;
+        while (nodes.size() < 4) {
+            Node node = nodes.get(index++);
+            int x = node.x;
+            int y = node.y;
+            
+            for (int i = 0; i < 4; i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (nx < 0 || ny < 0 || nx == n || ny == n || board[nx][ny] != num)
+                    continue;
+                board[nx][ny] = -1;
+                nodes.add(new Node(nx, ny));
+            }
+        }
+        int change = num;
+        boolean result = Node.canRemove(board, nodes);
+        if (result) {
+            change = 0;
+        }
+        for (Node node : nodes) {
+            board[node.x][node.y] = change;
+        }
+        return result;
+    } 
+    
+    public int solution(int[][] board) {
+        n = board.length;
+        int result = 0;
+        while (true) {
+            int prev = result;
+            Set<Integer> num = new HashSet<>();
+            num.add(0);
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (!num.contains(board[i][j])) {
+                        num.add(board[i][j]);
+                        if (bfs(i, j, board)) {
+                            prev++;
+                        }
+                    }
+                }
+            }
+            if (result == prev) {
+                return result;
+            }
+            result = prev;
+        }
+    }
+}
