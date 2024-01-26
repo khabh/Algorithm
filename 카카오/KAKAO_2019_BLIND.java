@@ -428,3 +428,52 @@ class Solution {
         }
     }
 }
+
+// 오픈채팅방
+import java.util.regex.*;
+import java.util.*;
+
+class Solution {
+        
+    class Record {
+        String id;
+        int type;
+        
+        public Record(String id, int type) {
+            this.id = id;
+            this. type = type;
+        }
+        
+        
+    }
+    
+    public String[] solution(String[] record) {
+        Map<String, String> names = new HashMap<>();
+        List<Record> records = new ArrayList<>();
+        for (String r : record) {
+            String[] sr = r.split(" ");
+            String id = sr[1];
+            if (sr[0].equals("Enter")) {
+                records.add(new Record(id, 1));
+                names.put(id, sr[2]);
+                continue;
+            }
+            if (sr[0].equals("Leave")) {
+                records.add(new Record(id, 2));
+                continue;
+            }
+            names.put(id, sr[2]);
+        }
+        String[] answer = new String[records.size()];
+        for (int i = 0; i < records.size(); i++) {
+            Record r = records.get(i);
+            String name = names.get(r.id);
+            if (r.type == 1) {
+                answer[i] = name + "님이 들어왔습니다.";
+            } else {
+                answer[i] = name + "님이 나갔습니다.";
+            }
+        }
+        return answer;
+    }
+}
