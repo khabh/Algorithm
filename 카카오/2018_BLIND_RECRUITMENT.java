@@ -163,3 +163,17 @@ class Solution {
         return answer;
     }
 }
+
+// 비밀지도
+class Solution {
+    public String[] solution(int n, int[] arr1, int[] arr2) {
+        String format = "%" + n + "s";
+        String[] answer = new String[n];
+        for (int i = 0; i < n; i++) {
+            answer[i] = String.format(format, Integer.toBinaryString(arr1[i]|arr2[i]))
+                .replace("0", " ")
+                .replace("1", "#");
+        }
+        return answer;
+    }
+}
