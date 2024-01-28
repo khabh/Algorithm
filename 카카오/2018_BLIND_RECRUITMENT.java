@@ -177,3 +177,34 @@ class Solution {
         return answer;
     }
 }
+
+// 다트게임
+import java.util.regex.*;
+import java.util.*;
+
+class Solution {
+    public int solution(String dartResult) {
+        Map<String, Integer> b = new HashMap<String, Integer>();
+        Pattern p = Pattern.compile("([0-9]+)([SDT])([\\*#]?)");
+        Matcher m = p.matcher(dartResult);
+        int[] scores = new int[3];
+        int index = 0;
+        b.put("S", 1);
+        b.put("D", 2);
+        b.put("T", 3);
+        
+        while (m.find()) {
+            int score = Integer.valueOf(m.group(1));
+            String bonus = m.group(2);
+            score = (int)Math.pow(score, b.get(bonus));
+            if (m.group(3).equals("*")) {
+                score *= 2;
+                scores[Math.max(0, index - 1)] *= 2;
+            } else if (m.group(3).equals("#")) {
+                score *= -1;
+            }
+            scores[index++] = score;
+        }
+        return Arrays.stream(scores).sum();
+    }
+}
