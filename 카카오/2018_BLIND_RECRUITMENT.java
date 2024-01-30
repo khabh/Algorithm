@@ -410,3 +410,104 @@ class Solution {
         return h + m + s;
     }
 }
+
+// 셔틀버스
+import java.util.*;
+
+class Solution {
+    public String solution(int n, int t, int m, String[] timetable) {
+        int bus = 9 * 60;
+        int max = bus + (n - 1) * t;
+        int count = 0;
+        int[] times = new int[timetable.length];
+        for (int i = 0; i < timetable.length; i++) {
+            times[i] = convert(timetable[i]);
+        }
+        Arrays.sort(times);
+        Map<Integer, List<Integer>> hist = new HashMap<>();
+        hist.put(bus, new ArrayList<>());
+        for (int time : times) {
+            while (count == m || time > bus) {
+                count = 0;
+                bus += t;
+                if (bus > max) {
+                    break;
+                }
+                hist.put(bus, new ArrayList<>());
+            }
+            if (bus > max) {
+                break;
+            }
+            count++;
+            hist.get(bus).add(time);
+        }
+        int answer = 0;
+        for (int time : hist.keySet()) {
+            List<Integer> cur = hist.get(time);
+            if (cur.size() < m) {
+                answer = Math.max(time, answer);
+            } else {
+                answer = Math.max(answer, cur.get(m - 1) - 1);
+            }
+        }
+        
+        return String.format("%02d:%02d", answer / 60, answer % 60);
+    }
+    
+    private int convert(String time) {
+        String[] splitTime = time.split(":");
+        return Integer.parseInt(splitTime[0]) * 60 + Integer.parseInt(splitTime[1]);
+    }
+}
+
+// 자동완성
+import java.util.*;
+class Solution {
+    
+    class Trie {
+        Map<Character, Trie> child = new HashMap<>();
+        int count = 0;
+        
+        public void add(String word) {
+            Trie parent = this;
+            for (char c : word.toCharArray()) {
+                parent.addChild(c);
+                parent = parent.child.get(c);
+            }
+            parent.addChild(' ');
+        }
+        
+        public int search(String word) {
+            int result = 0;
+            Trie parent = this;
+            for (char c : word.toCharArray()) {
+                result++;
+                if (parent.child.get(c).count == 1) {
+                    return result;
+                }
+                parent = parent.child.get(c);
+            }
+            return word.length();
+        }
+        
+        private void addChild(char c) {
+            count++;
+            if (child.containsKey(c)) {
+                return;
+            }
+            child.put(c, new Trie());
+        }
+    }
+    
+    public int solution(String[] words) {
+        Trie trie = new Trie();
+        for (String word : words) {
+            trie.add(word);
+        }
+        int answer = 0;
+        for (String word : words) {
+            answer += trie.search(word);
+        }
+        return answer;
+    }
+}
