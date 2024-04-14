@@ -1,19 +1,21 @@
 import java.util.*;
+import java.io.*;
 
 class Main {
     static int n;
     static List<List<Path>> graph = new ArrayList<>();
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        n = scanner.nextInt();
+    public static void main(String[] args) throws IOException {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.valueOf(bf.readLine());
         for (int i = 0; i <= n; i++) {
             graph.add(new ArrayList<>());
         }
         for (int i = 0; i < n - 1; i++) {
-            int a = scanner.nextInt();
-            int b = scanner.nextInt();
-            int c = scanner.nextInt();
+            StringTokenizer st = new StringTokenizer(bf.readLine(), " ");
+            int a = Integer.valueOf(st.nextToken());
+            int b = Integer.valueOf(st.nextToken());
+            int c = Integer.valueOf(st.nextToken());
             graph.get(a).add(new Path(b, c));
             graph.get(b).add(new Path(a, c));
         }
