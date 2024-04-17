@@ -1,18 +1,20 @@
 import java.util.*;
+import java.io.*;
 
 class Main {
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt();
-        int d = scanner.nextInt();
-        int k = scanner.nextInt();
-        int c = scanner.nextInt();
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.valueOf(st.nextToken());
+        int d = Integer.valueOf(st.nextToken());
+        int k = Integer.valueOf(st.nextToken());
+        int c = Integer.valueOf(st.nextToken());
 
         int last = n + k - 1;
         int[] type = new int[last];
         for (int i = 0; i < n; i++) {
-            type[i] = scanner.nextInt();
+            type[i] = Integer.valueOf(br.readLine());
         }
         for (int i = n; i < last; i++) {
             type[i] = type[i - n];
