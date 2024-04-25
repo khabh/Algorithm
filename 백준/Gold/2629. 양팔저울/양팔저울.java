@@ -7,7 +7,6 @@ class Main {
     private static int[] weights;
 
     public static void main(String[] args) throws IOException {
-        boolean[][] able = new boolean[30][40_000];
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         n = Integer.valueOf(br.readLine());
         weights = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::valueOf).toArray();
