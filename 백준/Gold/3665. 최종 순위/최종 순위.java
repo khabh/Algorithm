@@ -1,104 +1,88 @@
 import java.util.*;
 import java.io.*;
-import java.util.stream.*;
 
 class Main {
+
+    static int n;
+    static List<Team> teams;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int t = Integer.valueOf(br.readLine());
+        
         while (t-- > 0) {
-            solve(br);
-        }
-    }
+            n = Integer.valueOf(br.readLine());
+            int[] order = new int[n];
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for (int i = 0; i < n; i++) {
+                order[i] = Integer.valueOf(st.nextToken());
+            }
 
-    private static void solve(BufferedReader br) throws IOException {
-        int n = Integer.valueOf(br.readLine());
-        int[] numbers = Arrays.stream(br.readLine().split(" "))
-            .mapToInt(Integer::valueOf)
-            .toArray();
-        List<Node> nodes = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            nodes.add(new Node(i));
-        }
-        for (int i = 0; i < n; i++) {
-            Node prev = nodes.get(numbers[i]);
-            prev.start = i;
-            for (int j = i + 1; j < n; j++) {
-                prev.addNext(nodes.get(numbers[j]));
+            teams = new ArrayList<>();
+            for (int i = 1; i <= n; i++) {
+                teams.add(new Team(i));
             }
-        }
 
-        int m = Integer.valueOf(br.readLine());
-        while (m-- > 0) {
-            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            Node first = nodes.get(Integer.valueOf(st.nextToken()));
-            Node second = nodes.get(Integer.valueOf(st.nextToken()));
-            if (first.start > second.start) {
-                Node temp = first;
-                first = second;
-                second = temp;
+            for (int i = 0; i < n; i++) {
+                Team current = teams.get(order[i] - 1);
+                for (int j = i + 1; j < n; j++) {
+                    teams.get(order[j] - 1).addPrev(current);
+                }
             }
-            first.moveToNextOf(second);
-        }
-        List<Node> result = new ArrayList<>();
-        Queue<Node> q = new ArrayDeque<>();
-        for (int i = 1; i <= n; i++) {
-            if (nodes.get(i).prevCount == 0) {
-                q.add(nodes.get(i));
-                nodes.get(i).visited = true;
-                break;
+
+            int m = Integer.valueOf(br.readLine());
+            boolean isValid = true;
+            while (m-- > 0) {
+                st = new StringTokenizer(br.readLine());
+                Team a = teams.get(Integer.valueOf(st.nextToken()) - 1);
+                Team b = teams.get(Integer.valueOf(st.nextToken()) - 1);
+                
+                if (b.prevs.contains(a)) {
+                    b.prevs.remove(a);
+                    a.addPrev(b);
+                } else if (a.prevs.contains(b)) {
+                    a.prevs.remove(b);
+                    b.addPrev(a);
+                } else {
+                    isValid = false;
+                }
             }
-        }
-        while (!q.isEmpty()) {
-            Node cur = q.poll();
-            if (!q.isEmpty()) {
+
+            teams.sort(Comparator.comparingInt(Team::getOrder));
+            
+            for (int i = 0; i < n; i++) {
+                if (teams.get(i).getOrder() != i) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid) {
                 System.out.println("IMPOSSIBLE");
-                return;
-            }
-            result.add(cur);
-            for (Node node : cur.next) {
-                node.prevCount--;
-                if (node.visited) {
-                    System.out.println("IMPOSSIBLE");
-                    return;
+            } else {
+                StringJoiner sj = new StringJoiner(" ");
+                for (Team team : teams) {
+                    sj.add(String.valueOf(team.num));
                 }
-                if (node.prevCount == 0) {
-                    node.visited = true;
-                    q.add(node);
-                }
+                System.out.println(sj);
             }
         }
-        if (result.size() != n) {
-            System.out.println("IMPOSSIBLE");
-            return;
-        }
-        System.out.println(result.stream()
-            .map(node -> String.valueOf(node.number))
-            .collect(Collectors.joining(" ")));
     }
 
-    private static class Node {
-        boolean visited = false;
-        int number;
-        int start;
-        int prevCount = 0;
-        Set<Node> next = new HashSet<>();
+    private static class Team {
+        int num;
+        Set<Team> prevs = new HashSet<>();
 
-        public Node(int number) {
-            this.number = number;
+        public Team(int num) {
+            this.num = num;
         }
 
-        public void addNext(Node node) {
-            node.prevCount++;
-            next.add(node);
+        public void addPrev(Team prev) {
+            prevs.add(prev);
         }
 
-        public void moveToNextOf(Node o) {
-            next.remove(o);
-            prevCount++;
-            o.prevCount--;
-            o.next.add(this);
+        public int getOrder() {
+            return prevs.size();
         }
     }
 }
