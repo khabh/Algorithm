@@ -14,10 +14,13 @@ public class Main {
         }
         Arrays.fill(dp, 1);
         for (int i = n - 1; i >= 0; i--) {
-            dp[i] = heights[i] + i < n - 1 ? dp[i + heights[i] + 1] + 1 : 1;
+            dp[i] = (heights[i] + i < n - 1) ? dp[i + heights[i] + 1] + 1 : 1;
         }
+
+        StringBuilder sb = new StringBuilder();
         for (int num : dp) {
-            System.out.print(num + " ");
+            sb.append(num).append(" ");
         }
+        System.out.println(sb);
     }
 }
