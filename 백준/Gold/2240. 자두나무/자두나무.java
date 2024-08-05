@@ -1,44 +1,34 @@
 import java.util.*;
+import java.io.*;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int t = scanner.nextInt();
-        int w = scanner.nextInt();
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int t = Integer.parseInt(st.nextToken());
+        int w = Integer.parseInt(st.nextToken());
         int[][] dp = new int[t + 1][w + 1];
-        int result = 0;
-
-
-        int[] board = new int[t + 1];
+        
+        int[] nums = new int[t + 1];
         for (int i = 1; i <= t; i++) {
-            board[i] = scanner.nextInt() - 1;
+            nums[i] = Integer.parseInt(br.readLine());
         }
 
-        for (int time = 1; time <= t; time++) {
-            for (int move = 0; move <= w; move++) {
-                int current = move % 2;
-                int next = board[time];
-                if (move == 0) {
-                    if (next == move) {
-                        dp[time][0] = dp[time - 1][0] + 1;
-                    } else {
-                        dp[time][0] = dp[time - 1][0];
-                    }
+        for (int i = 1; i <= t; i++) {
+            if (nums[i] == 1) {
+                dp[i][0] = dp[i - 1][0] + 1;
+            } else {
+                dp[i][0] = dp[i - 1][0];
+            }
+            for (int j = 1; j <= w; j++) {
+                if ((nums[i] == 1 && (j % 2 == 0)) || (nums[i] == 2 && (j % 2 == 1))) {
+                    dp[i][j] = Math.max(dp[i - 1][j - 1], dp[i - 1][j]) + 1;
                     continue;
                 }
-                if (current == next) {
-                    dp[time][move] = Math.max(dp[time - 1][move - 1], dp[time - 1][move] + 1);
-                    continue;
-                }
-                dp[time][move] = Math.max(dp[time - 1][move], dp[time - 1][move - 1] + 1);
+                dp[i][j] = Math.max(dp[i - 1][j - 1], dp[i - 1][j]);
             }
         }
-
-        for (int time = 1; time <= t; time++) {
-            for (int move = 0; move <= w; move++) {
-                result = Math.max(result, dp[time][move]);
-            }
-        }
-        System.out.println(result);
+        System.out.println(Arrays.stream(dp[t]).max().getAsInt());
     }
 }
