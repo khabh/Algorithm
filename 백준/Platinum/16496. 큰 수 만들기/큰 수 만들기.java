@@ -29,15 +29,9 @@ public class Main {
 
         @Override
         public int compareTo(Node o) {
-            String a = concat(value, o.value);
-            String b = concat(o.value, value);
+            String a = value + o.value;
+            String b = o.value + value;
             return b.compareTo(a);
         }
-    }
-
-    private static String concat(String a, String b) {
-        StringBuilder sb = new StringBuilder(a);
-        sb.append(b);
-        return sb.toString();
     }
 }
