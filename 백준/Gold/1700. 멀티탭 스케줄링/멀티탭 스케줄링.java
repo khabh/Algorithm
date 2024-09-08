@@ -26,7 +26,7 @@ public class Main {
         int count = 0;
         for (int i : nodes) {
             Node node = list.get(i);
-            int first = node.pop();
+            int first = node.poll();
 
             if (plugs.contains(node)) {
                 continue;
@@ -39,8 +39,8 @@ public class Main {
             count++;
             Node removed = node;
             for (Node plugged : plugs) {
-                if (plugged.q.getFirst() > first) {
-                    first = plugged.q.getFirst();
+                if (plugged.peek() > first) {
+                    first = plugged.peek();
                     removed = plugged;
                 }
             }
@@ -52,7 +52,7 @@ public class Main {
 
     static class Node {
         int num;
-        Deque<Integer> q = new LinkedList<>();
+        Queue<Integer> q = new LinkedList<>();
 
         public Node(int num) {
             this.num = num;
@@ -62,8 +62,12 @@ public class Main {
             q.add(order);
         }
 
-        public int pop() {
+        public int poll() {
             return q.poll();
+        }
+
+        public int peek() {
+            return q.peek();
         }
     }
 }
