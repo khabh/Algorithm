@@ -3,44 +3,42 @@ import java.io.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException { 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).sorted().toArray();
-        Set<Integer> results = new HashSet<>();
-        Map<Integer, Set<Integer>> set = new HashMap<>();
+        int[] nums = Arrays.stream(br.readLine().split(" "))
+                .mapToInt(Integer::parseInt)
+                .sorted()
+                .toArray();
+        int result = 0;
         for (int i = 0; i < n; i++) {
-            int num = nums[i];
-            if (!set.containsKey(num)) {
-                set.put(num, new HashSet<>());
-            }
-            set.get(num).add(i);
-        }
-        for (int i = 0; i < n; i++) {
-            int a = nums[i];
-            for (int j = i + 1; j < n; j++) {
-                int cur = a + nums[j];
-                if (!set.containsKey(cur)) {
+            int target = nums[i];
+            int left = 0;
+            int right = n - 1;
+            
+            while (left < right) {
+                int cur = nums[left] + nums[right];
+                if (cur == target) {
+                    if (left != i && right != i) {
+                        result++;
+                        break;
+                    }
+                    if (left == i) {
+                        left++;
+                    } else {
+                        right--;
+                    }
                     continue;
+                } 
+                if (cur < target) {
+                    left++;
                 }
-                Set<Integer> curSet = set.get(cur);
-                boolean containsI = curSet.remove(i);
-                boolean containsJ = curSet.remove(j);
-                results.addAll(curSet);
-                if (!containsI && !containsJ) {
-                    set.remove(cur);
-                } else {
-                    Set<Integer> next = new HashSet<>();
-                    if (containsI) {
-                        next.add(i);
-                    }
-                    if (containsJ) {
-                        next.add(j);
-                    }
-                    set.put(cur, next);
+                if (cur > target) {
+                    right--;
+
                 }
             }
         }
-        System.out.println(results.size());
+        System.out.println(result);
     }
 }
