@@ -17,18 +17,39 @@ public class Main {
         } 
         long[] abs = group(0, 1);
         long[] cds = group(2, 3);
-        Arrays.sort(cds);
+        int max = n * n;
         long result = 0;
+        int left = 0;
+        int right = max - 1;
 
-        for (long ab : abs) {
-            long target = -ab;
-            int lower = lowerBound(cds, target);
-            int upper = upperBound(cds, target);
-            if (lower < upper || lower == -1 || upper == abs.length) {
+        while (left < max && right >= 0) {
+            long sum = abs[left] + cds[right];
+
+            if (sum == 0) {
+                long leftCount = 1;
+                long rightCount = 1;
+
+                while (left + 1 < max && abs[left] == abs[left + 1]) {
+                    left++;
+                    leftCount++;
+                }
+                while (right - 1 >= 0 && cds[right] == cds[right - 1]) {
+                    right--;
+                    rightCount++;
+                }
+
+                result += (leftCount * rightCount);
+                right--;
+                left++;
                 continue;
             }
-            result += (lower - upper + 1);
+            if (sum > 0) {
+                right--;
+            } else {
+                left++;
+            }
         }
+        
         System.out.println(result);
     }
 
@@ -40,34 +61,7 @@ public class Main {
                 result[count++] = nums[i][a] + nums[j][b];
             }
         }
+        Arrays.sort(result);
         return result;
-    }
-
-    private static int lowerBound(long[] arr, long target) {
-        int start = -1;
-        int end = arr.length;
-        while (start + 1 < end) {
-            int mid = (start + end) / 2;
-            if (arr[mid] <= target) {
-                start = mid;
-            } else {
-                end = mid;
-            }
-        }
-        return start;
-    }
-
-    private static int upperBound(long[] arr, long target) {
-        int start = -1;
-        int end = arr.length;
-        while (start + 1 < end) {
-            int mid = (start + end) / 2;
-            if (arr[mid] >= target) {
-                end = mid;
-            } else {
-                start = mid;
-            }
-        }
-        return end;
     }
 }
