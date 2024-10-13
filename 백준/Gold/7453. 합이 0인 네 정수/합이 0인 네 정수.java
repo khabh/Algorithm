@@ -56,6 +56,11 @@ public class Main {
             d[i] = Integer.parseInt(st.nextToken());
         } 
 
+        Arrays.sort(a);
+        Arrays.sort(b);
+        Arrays.sort(c);
+        Arrays.sort(d);
+
         abs = group(a, b);
         cds = group(c, d);
     }
