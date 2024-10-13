@@ -4,19 +4,11 @@ import java.io.*;
 public class Main {
 
     static int n;
-    static long[][] nums;
+    static int[] abs, cds;
 
     public static void main(String[] args) throws IOException { 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-        nums = new long[n][4];
-        for (int i = 0; i < n; i++) {
-            nums[i] = Arrays.stream(br.readLine().split(" "))
-                            .mapToLong(Long::parseLong)
-                            .toArray();
-        } 
-        long[] abs = group(0, 1);
-        long[] cds = group(2, 3);
+        input();
+        
         int max = n * n;
         long result = 0;
         int left = 0;
@@ -29,18 +21,13 @@ public class Main {
                 long leftCount = 1;
                 long rightCount = 1;
 
-                while (left + 1 < max && abs[left] == abs[left + 1]) {
-                    left++;
+                while (++left < max && abs[left] == abs[left - 1]) {
                     leftCount++;
                 }
-                while (right - 1 >= 0 && cds[right] == cds[right - 1]) {
-                    right--;
+                while (--right >= 0 && cds[right] == cds[right + 1]) {
                     rightCount++;
                 }
-
                 result += (leftCount * rightCount);
-                right--;
-                left++;
                 continue;
             }
             if (sum > 0) {
@@ -53,12 +40,32 @@ public class Main {
         System.out.println(result);
     }
 
-    private static long[] group(int a, int b) {
-        long[] result = new long[n * n];
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
+        int[] a = new int[n];
+        int[] b = new int[n];
+        int[] c = new int[n];
+        int[] d = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            a[i] = Integer.parseInt(st.nextToken());
+            b[i] = Integer.parseInt(st.nextToken());
+            c[i] = Integer.parseInt(st.nextToken());
+            d[i] = Integer.parseInt(st.nextToken());
+        } 
+
+        abs = group(a, b);
+        cds = group(c, d);
+    }
+ 
+    private static int[] group(int[] a, int[] b) {
+        int[] result = new int[n * n];
         int count = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                result[count++] = nums[i][a] + nums[j][b];
+                result[count++] = a[i] + b[j];
             }
         }
         Arrays.sort(result);
