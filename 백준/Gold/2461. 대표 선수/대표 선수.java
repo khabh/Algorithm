@@ -39,7 +39,10 @@ public class Main {
             j++;
             int tmp = j == m ? Integer.MAX_VALUE : board[i][j];
             q.add(new int[]{tmp, i, j});
-            if (!minFixed && q.peek()[2] != m) {
+            if (q.peek()[2] == m) {
+                break;
+            }
+            if (!minFixed) {
                 min = q.peek()[0];
                 if (q.peek()[2] == m - 1) {
                     minFixed = true;
