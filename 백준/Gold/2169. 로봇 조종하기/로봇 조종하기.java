@@ -9,17 +9,12 @@ class Main {
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
         int[][] board = new int[n][m];
-        int[] total = new int[n];
         
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            int cur = 0;
             for (int j = 0; j < m; j++) {
-                int value = Integer.parseInt(st.nextToken());
-                cur += value;
-                board[i][j] = value;
+                board[i][j] = Integer.parseInt(st.nextToken());
             }
-            total[i] = cur;
         }
 
         int[] dp = new int[m];
@@ -27,24 +22,22 @@ class Main {
         for (int i = 1; i < m; i++) {
             dp[i] = dp[i - 1] + board[0][i];
         }
+        
         for (int i = 1; i < n; i++) {
-            int[] fromTop = new int[m];
-            for (int j = 0; j < m; j++) {
-                fromTop[j] = board[i][j] + dp[j];
-            }
             int[] fromLeft = new int[m];
             int[] fromRight = new int[m];
-            for (int j = 0; j < m; j++) {
-                fromLeft[j] = fromTop[j];
-                if (j > 0) {
-                    fromLeft[j] = Math.max(fromLeft[j], board[i][j] + fromLeft[j - 1]);
-                }
+            
+            fromLeft[0] = dp[0] + board[i][0];
+            for (int j = 1; j < m; j++) {
+                fromLeft[j] = Math.max(fromLeft[j - 1], dp[j]) + board[i][j];
             }
-            for (int j = m -1; j >= 0; j--) {
-                fromRight[j] = fromTop[j];
-                if (j + 1 < m) {
-                    fromRight[j] = Math.max(fromRight[j], board[i][j] + fromRight[j + 1]);
-                }
+
+            fromRight[m - 1] = dp[m - 1] + board[i][m - 1];
+            for (int j = m - 2; j >= 0; j--) {
+                fromRight[j] = Math.max(fromRight[j + 1], dp[j]) + board[i][j];
+            }
+
+            for (int j = 0; j < m; j++) {
                 dp[j] = Math.max(fromLeft[j], fromRight[j]);
             }
         }
