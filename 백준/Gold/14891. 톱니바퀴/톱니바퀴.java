@@ -20,12 +20,10 @@ public class Main {
             move(start, dir);
         }
         int result = 0;
-        int cur = 1;
         for (int i = 0; i < 4; i++) {
             if (board[i][up[i]] == '1') {
-                result += cur;
+                result += Math.pow(2, i);
             }
-            cur *= 2;
         }
         System.out.println(result);
     }
