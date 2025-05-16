@@ -18,7 +18,7 @@ class Main {
             int time = sub[0];
             int score = sub[1];
             int[] cur = new int[t + 1];
-            for (int i = 0; i < t; i++) {
+            for (int i = 0; i < Math.min(t + 1, time); i++) {
                 cur[i] = dp[i];
             }
             for (int i = time; i <= t; i++) {
